@@ -7,6 +7,8 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
+haggle = "^0.1.14"
+kaggle = "^1.6.17"
 
 
 [build-system]
