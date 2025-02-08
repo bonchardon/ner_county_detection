@@ -8,6 +8,7 @@ I am about to use following datasets in japanese language and additionally colle
     - https://dell-research-harvard.github.io/HJDataset/ (Historical Japanese Documents dataset);
     - https://github.com/SkelterLabsInc/JaQuAD (Japanese Question Answering Dataset);   
     - https://github.com/cl-tohoku/PheMT (PheMT);
+    - https://huggingface.co/datasets/sergicalsix/Japanese_NER_Data_Hub 
 
 Also, I am about to use data searched on my own from open resources 
     (mainly that consists of such named entities correlated to Ukraine and Japan, direct and indirect mentioning included).
