@@ -7,6 +7,7 @@ from core.train_test_set.collect_data import CollectData
 from core.train_test_set.preprocess_part import PreprocessingFormula
 
 from core.ai.rag_llama.rag_builder import BuildRAG
+from core.ai.fine_tune_model.ner_recognizer.llm_builder import ModelBuilder
 
 
 async def main() -> None:
@@ -15,8 +16,8 @@ async def main() -> None:
     # preprocessed_data: list[DataSet] | None = await PreprocessingFormula().preprocessing_pipeline(data_set=data)
     # logger.info(preprocessed_data[:5])
 
-    output = await BuildRAG().loading_data()
-    logger.info(output)
+    model_check = await ModelBuilder().llm_builder()
+    logger.info(model_check)
     return
 
 if __name__ == '__main__':

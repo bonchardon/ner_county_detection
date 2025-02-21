@@ -20,7 +20,7 @@ from core.ai.rag_llama.consts import EMBEDDING_MODEL
 class BuildRAG:
     async def loading_data(self):
         # doc: list[Document] = SimpleDirectoryReader('').load_data()
-        embed_model = FastEmbedEmbedding(model_name='BAAI/bge-small-en-v1.5')
+        embed_model = FastEmbedEmbedding(model_name=EMBEDDING_MODEL)
         embeddings = embed_model.get_text_embedding('tcv2catnap この人、移民と難民、不法の区別がついていないみたいですよ。日本に難民はこない、と書いていますから。ウクライナ難民とか知らないんでしょう')
         logger.info(embeddings)
 
