@@ -3,7 +3,7 @@
 #  2) preprocess data for further use;
 #  3) apply ETL approach
 
-from json import dump, load
+from json import load
 
 from loguru import logger
 
@@ -25,7 +25,6 @@ class CollectData:
 
     async def all_data_retrieved(self):
         # todo: combine all data
-
         ...
 
 

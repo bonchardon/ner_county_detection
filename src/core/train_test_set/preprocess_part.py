@@ -2,16 +2,16 @@
 #  1) delete stop words,
 #  2) delete punctuation,
 #  3) delete all odd data (consider how to do that since it's japanese)
+from re import sub
 
 from loguru import logger
 
 from stopwordsiso import stopwords
 
-import torch
-from transformers import AutoTokenizer, BatchEncoding, PreTrainedTokenizerFast
+from transformers import AutoTokenizer, PreTrainedTokenizerFast
 
-from core.train_test_set.consts import JAPANESE_SEPARATOR, JAPANESE_PUNCTUATION
 from core.train_test_set.corpus import DataSet
+from core.train_test_set.consts import JAPANESE_SEPARATOR, JAPANESE_PUNCTUATION, REGEX_NUMBERS
 
 
 class PreprocessingFormula:
@@ -30,16 +30,18 @@ class PreprocessingFormula:
     async def remove_stop_words(sentences: list[str]) -> list[list[str]] | None:
         stop_words: set[str] = set(stopwords('ja'))
         if not (filtered_sentences := [
-            [word for word in sent.split() if word not in stop_words and word not in JAPANESE_PUNCTUATION]
+            [
+                word
+                for word in sent.split()
+                if word not in stop_words
+                and word not in JAPANESE_PUNCTUATION
+                and sub(REGEX_NUMBERS, '', word)
+            ]
             for sent in sentences
         ]):
             logger.error('Error when filtering sentences from stop words.')
             return
         return filtered_sentences
-
-    @staticmethod
-    async def apply_lemma():
-        ...
 
     @classmethod
     async def preprocessing_pipeline(cls, data_set: list[str]) -> list[DataSet] | None:
