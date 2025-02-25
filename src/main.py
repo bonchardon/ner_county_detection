@@ -2,12 +2,7 @@ from asyncio import run
 
 from loguru import logger
 
-from core.train_test_set.corpus import DataSet
-from core.train_test_set.collect_data import CollectData
-from core.train_test_set.preprocess_part import PreprocessingFormula
-
-from core.ai.rag_llama.rag_builder import BuildRAG
-from core.ai.fine_tune_model.ner_recognizer.llm_builder import ModelBuilder
+from core.ai.ner_recognizer.llm_builder import ModelBuilder
 
 
 async def main() -> None:

@@ -11,12 +11,13 @@ from loguru import logger
 from pydantic import BaseModel, Field
 
 from langchain.schema import AIMessage
+from langchain import PromptTemplate
 
 
 class JapaneseNamedEntitiesIdentificator(BaseModel):
     # todo: apply rag here for contextual references
-    result: bool = Field(
-        description=(
+    result: bool = PromptTemplate(
+        template=(
             '<|begin_of_text|> '
             'You need to identify any named entities in japanese text '
             'and/or corpora related to countries. '
@@ -36,7 +37,7 @@ class JapaneseNamedEntitiesIdentificator(BaseModel):
             'Make sure you follow the instruction strictly and at the end I receive a short and concise reply, such as:'
             '<|end_of_text|>'
         ),
-        default=False
+        input_variables=['text']
     )
 
 
