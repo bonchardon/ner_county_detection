@@ -14,35 +14,37 @@ from langchain.schema import AIMessage
 from langchain import PromptTemplate
 
 
-class JapaneseNamedEntitiesIdentificator(BaseModel):
+class IsNERPresent(BaseModel):
+    check_if_present: bool = Field(
+        description='<|begin_of_text|> <|end_of_text|> '
+    )
+
+
+class JapaneseNamedEntitiesIdentificator(IsNERPresent):
     # todo: apply rag here for contextual references
-    result: bool = PromptTemplate(
-        template=(
+    country_ner: str | None = Field(
+        description=(
             '<|begin_of_text|> '
-            'You need to identify any named entities in japanese text '
-            'and/or corpora related to countries. '
-            'Or in other words: you have to find names of countries from text data.'
+            'You need to identify any country name in a japanese text. '
             'Mind that there can be contextual references of countries, as well. If so, apply RAG.'
-            'As a reply, you have to give a reply that consists of only NER or country/countries. '
-            'If there are multiple countries mentioned make sure, you gie a reply of all the countries mentioned.'
+            'If there are multiple countries mentioned make sure, you identify ALL the countries.'
             '### Example 1: '
             'Input: amisweetheart 日本まで、日本での住所も決めずに来れる奴らが難民か？ウクライナ人はホームステイして良いですよとか、'
             'たまたま家族がいたからとかで来た人多いと思うけど。 変なYouTubeに感化されて、好き勝手できそうで来てるんやないの？ '
             'ただで電車に乗る方法とか、暴言吐いても射殺されないとか見てさ。'
-            'Reply: ["日本", "ウクライナ"]'
+            'Reply: ["ウクライナ", "日本"]'
             '### Example 2: '
             'Input: ロシア大使館かウクライナ大使館に亡命申請してみたらどうだろう？ 「日本は人権を尊重する国と思ったのに…」'
             '難民審査待たされ野宿3カ月 行き場をなくした外国人が増えている：東京新聞 TOKYO Web'
             'Reply: ["ロシア", "ウクライナ"]'
-            'Make sure you follow the instruction strictly and at the end I receive a short and concise reply, such as:'
             '<|end_of_text|>'
         ),
-        input_variables=['text']
+        default=False
     )
 
 
 class CountriesReCheck(BaseModel):
-    result: bool = Field(
+    result: str | None = Field(
         description=(
             '<|begin_of_text|> '
             'If there no countries identified, recheck and analyze the text maximum 3 more times. '
