@@ -25,6 +25,9 @@ langchain = "^0.3.18"
 llama-index = "^0.12.19"
 huggingface = "^0.0.1"
 langchain-community = "^0.3.18"
+selectolax = "^0.3.28"
+selenium = "^4.29.0"
+helium = "^5.1.1"
 
 
 [build-system]

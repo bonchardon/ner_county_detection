@@ -14,18 +14,54 @@ from langchain.schema import AIMessage
 from langchain import PromptTemplate
 
 
-class IsNERPresent(BaseModel):
-    check_if_present: bool = Field(
-        description='<|begin_of_text|> <|end_of_text|> '
+class AssistantResponse(BaseModel):
+    ...
+
+
+class IsNERPresent(AssistantResponse):
+    check_if_present: str | None = Field(
+        description=(
+            '<|begin_of_text|> '
+            'Your only task is to check whether there are any named entities related to any countries. '
+            'There also could be indirect messaging. In such a case, apply RAG.'
+            'Finally, the response should be as follows: '
+            'True (if there are any named entities) and False (if there are no named entities).'
+            '<|end_of_text|> '
+        ),
+        default=False
+    )
+
+
+class CheckRAG(AssistantResponse):
+    # todo: apply rag here for contextual references
+    augmented_generation_check: bool = Field(
+        description=(
+            '<|begin_of_text|> You need to identify if there are any indirect mentioning or not. '
+            'An example of indirect mentioning: Japan can my named as "the country of the rising sun". '
+            'Japan has not been mentioned here directly, yet frm the context and general knowledge '
+            'we understand that here we are talking about Japan.'
+            'Return True (if there are any) and False (if there are no any indirect mentioning).'
+            '<|end_of_text|>'
+        ),
+        default=False
+    )
+
+
+class ResponseIfRAG(AssistantResponse):
+    rag_response: str = Field(
+        description=(
+            '<|begin_of_text|> '
+            '<|end_of_text|> '
+        ),
+        default=False
     )
 
 
 class JapaneseNamedEntitiesIdentificator(IsNERPresent):
-    # todo: apply rag here for contextual references
     country_ner: str | None = Field(
         description=(
             '<|begin_of_text|> '
-            'You need to identify any country name in a japanese text. '
+            'You need to identify any country name in a text in japanese language. '
             'Mind that there can be contextual references of countries, as well. If so, apply RAG.'
             'If there are multiple countries mentioned make sure, you identify ALL the countries.'
             '### Example 1: '
