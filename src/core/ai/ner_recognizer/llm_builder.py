@@ -11,9 +11,12 @@ from transformers import (
 )
 
 from langchain_core.prompts import PromptTemplate
+from langchain_community.llms import Ollama
+
 
 from core.ai.enums import AiModels
 from core.ai.models import JapaneseNamedEntitiesIdentificator, IndirectMentioning
+from train_test_set.corpus import DataSet
 
 
 class ModelBuilder:
@@ -47,19 +50,18 @@ class ModelBuilder:
         return text_pipeline
 
     @staticmethod
-    async def prompt_template(input_text: str, prompt: str) -> str | None:
+    async def prompt_template(input_text: list[DataSet], prompt: str) -> str | None:
         if not (prompt_template := PromptTemplate.from_template(prompt)):
             logger.error('There is an issue when trying to use prompt template.')
             return
         return prompt_template.format(input_text=input_text)
 
     @classmethod
-    async def prompt_ner(cls, input_text: str) -> list | str | None:
+    async def prompt_ner(cls, input_text: list[DataSet]) -> list | str | None:
         formatted_input: str = await cls.prompt_template(
             input_text=input_text,
             prompt=JapaneseNamedEntitiesIdentificator().country_ner
         )
-
         llm_pipeline: Pipeline | None = await cls.llm_builder()
         if llm_pipeline is None:
             logger.error('NER pipeline could not be loaded.')
@@ -78,7 +80,7 @@ class ModelBuilder:
         return result
 
     @classmethod
-    async def check_for_indirect_mentions(cls, input_text: str):
+    async def check_for_indirect_mentions(cls, input_text: list[DataSet]):
         """ We are about to use RAG, so we can identify any indirect mentioning. """
         formatted_input: str = await cls.prompt_template(
             input_text=input_text,

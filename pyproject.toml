@@ -28,6 +28,7 @@ langchain-community = "^0.3.18"
 selectolax = "^0.3.28"
 selenium = "^4.29.0"
 helium = "^5.1.1"
+langchain-ollama = "^0.2.3"
 
 
 [build-system]

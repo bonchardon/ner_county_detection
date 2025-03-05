@@ -1487,6 +1487,21 @@ tenacity = ">=8.1.0,<8.4.0 || >8.4.0,<10.0.0"
 typing-extensions = ">=4.7"
 
 [[package]]
+name = "langchain-ollama"
+version = "0.2.3"
+description = "An integration package connecting Ollama and LangChain"
+optional = false
+python-versions = "<4.0,>=3.9"
+files = [
+    {file = "langchain_ollama-0.2.3-py3-none-any.whl", hash = "sha256:c47700ca68b013358b1e954493ecafb3bd10fa2cda71a9f15ba7897587a9aab2"},
+    {file = "langchain_ollama-0.2.3.tar.gz", hash = "sha256:d13fe8735176b652ca6e6656d7902c1265e8c0601097569f7c95433f3d034b38"},
+]
+
+[package.dependencies]
+langchain-core = ">=0.3.33,<0.4.0"
+ollama = ">=0.4.4,<1"
+
+[[package]]
 name = "langchain-text-splitters"
 version = "0.3.6"
 description = "LangChain text splitting utilities"
@@ -2118,6 +2133,21 @@ files = [
     {file = "numpy-2.2.2-pp310-pypy310_pp73-win_amd64.whl", hash = "sha256:356ca982c188acbfa6af0d694284d8cf20e95b1c3d0aefa8929376fea9146f60"},
     {file = "numpy-2.2.2.tar.gz", hash = "sha256:ed6906f61834d687738d25988ae117683705636936cc605be0bb208b23df4d8f"},
 ]
+
+[[package]]
+name = "ollama"
+version = "0.4.7"
+description = "The official Python client for Ollama."
+optional = false
+python-versions = "<4.0,>=3.8"
+files = [
+    {file = "ollama-0.4.7-py3-none-any.whl", hash = "sha256:85505663cca67a83707be5fb3aeff0ea72e67846cea5985529d8eca4366564a1"},
+    {file = "ollama-0.4.7.tar.gz", hash = "sha256:891dcbe54f55397d82d289c459de0ea897e103b86a3f1fad0fdb1895922a75ff"},
+]
+
+[package.dependencies]
+httpx = ">=0.27,<0.29"
+pydantic = ">=2.9.0,<3.0.0"
 
 [[package]]
 name = "openai"
@@ -4121,4 +4151,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "12ebcbb66c0877ce38ddbc6a5c56cd9f2751f9dff9c7cca0a8179269bc68cff8"
+content-hash = "f47ff8b512f276cefa51dd8856f58ffd1f24dd5a5a154a6f6985c60062dd1636"

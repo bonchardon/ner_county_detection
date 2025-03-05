@@ -2,21 +2,20 @@ from asyncio import run
 
 from loguru import logger
 
-from core.ai.ner_recognizer.llm_builder import ModelBuilder
+from train_test_set.corpus import DataSet
+
 from core.ai.rag_llama.rag_builder import BuildRAG
+from core.train_test_set.preprocess_part import PreprocessingFormula
+from core.ai.ner_recognizer.llm_builder import ModelBuilder
 
 
 async def main() -> None:
-    # data: list[str] = await CollectData().json_file()
-    # logger.info(data.__len__())
-    # preprocessed_data: list[DataSet] | None = await PreprocessingFormula().preprocessing_pipeline(data_set=data)
-    # logger.info(preprocessed_data[:5])
-
-    # model_check = await ModelBuilder().llm_builder()
-    # logger.info(model_check)
-    # return
-
-    return await BuildRAG().embedding_data()
+    trial_sentence = ['Mickie3777 日本は「半島人」アレルギーがあるのと、もう一つは今のクルド人の様な難民との区別がつかない人が多いんですよ。だからウクライナからの一時的な戦時避難民に対してさえ冷たい声が上がっていました。']
+    preprocessed_data: list[DataSet] | None = await PreprocessingFormula().preprocessing_pipeline(
+        data_set=trial_sentence
+    )
+    logger.info(preprocessed_data[:5])
+    return await ModelBuilder().prompt_ner(input_text=preprocessed_data)
 
 if __name__ == '__main__':
     run(main())
