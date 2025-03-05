@@ -1,63 +1,25 @@
-# todo:
-#  1) find a model according to the needs (find out more on what do we actually need,
-#   what type of data we're about to work with);
-#  2) train (supervised/unsupervised/reinforcement leaning (?)) model using train set collected;
-#  3) collect confusion matrix and gradient descent results to enhance out model in future.
-
-from typing import Type
-
-from loguru import logger
-
 from pydantic import BaseModel, Field
-
-from langchain.schema import AIMessage
-from langchain import PromptTemplate
 
 
 class AssistantResponse(BaseModel):
     ...
 
 
-class IsNERPresent(AssistantResponse):
-    check_if_present: str | None = Field(
-        description=(
-            '<|begin_of_text|> '
-            'Your only task is to check whether there are any named entities related to any countries. '
-            'There also could be indirect messaging. In such a case, apply RAG.'
-            'Finally, the response should be as follows: '
-            'True (if there are any named entities) and False (if there are no named entities).'
-            '<|end_of_text|> '
-        ),
-        default=False
-    )
-
-
-class CheckRAG(AssistantResponse):
-    # todo: apply rag here for contextual references
-    augmented_generation_check: bool = Field(
+class IndirectMentioning(AssistantResponse):
+    augmented_generation_check: str = Field(
         description=(
             '<|begin_of_text|> You need to identify if there are any indirect mentioning or not. '
             'An example of indirect mentioning: Japan can my named as "the country of the rising sun". '
-            'Japan has not been mentioned here directly, yet frm the context and general knowledge '
-            'we understand that here we are talking about Japan.'
-            'Return True (if there are any) and False (if there are no any indirect mentioning).'
+            'Japan has not been mentioned here directly, yet from the context and general knowledge '
+            'we understand that here we are talking about a specific country.'
+            'Here apply RAG and from ident'
             '<|end_of_text|>'
         ),
         default=False
     )
 
 
-class ResponseIfRAG(AssistantResponse):
-    rag_response: str = Field(
-        description=(
-            '<|begin_of_text|> '
-            '<|end_of_text|> '
-        ),
-        default=False
-    )
-
-
-class JapaneseNamedEntitiesIdentificator(IsNERPresent):
+class JapaneseNamedEntitiesIdentificator(AssistantResponse):
     country_ner: str | None = Field(
         description=(
             '<|begin_of_text|> '
@@ -69,23 +31,31 @@ class JapaneseNamedEntitiesIdentificator(IsNERPresent):
             'たまたま家族がいたからとかで来た人多いと思うけど。 変なYouTubeに感化されて、好き勝手できそうで来てるんやないの？ '
             'ただで電車に乗る方法とか、暴言吐いても射殺されないとか見てさ。'
             'Reply: ["ウクライナ", "日本"]'
+            '{'
+                '"title_p": "Sankei_news そんなの提供できるなら、日本に来てるウクライナ難民も帰国ですね",'
+                '"title_p_countries": ["日本, ウクライナ"],'
+                '"result": ['
+                    '"日本",'
+                    '"ウクライナ"'
+                ']'
+            '}'
             '### Example 2: '
             'Input: ロシア大使館かウクライナ大使館に亡命申請してみたらどうだろう？ 「日本は人権を尊重する国と思ったのに…」'
             '難民審査待たされ野宿3カ月 行き場をなくした外国人が増えている：東京新聞 TOKYO Web'
-            'Reply: ["ロシア", "ウクライナ"]'
-            '<|end_of_text|>'
-        ),
-        default=False
-    )
-
-
-class CountriesReCheck(BaseModel):
-    result: str | None = Field(
-        description=(
-            '<|begin_of_text|> '
-            'If there no countries identified, recheck and analyze the text maximum 3 more times. '
-            'In case, there are still not named entities identified, give reply as mentioned above:'
-            'Reply: "result": [None]'
+            'Reply: '
+            '{'
+                '"title_p": "ロシア大使館かウクライナ大使館に亡命申請してみたらどうだろう？ 「日本は人権を尊重する国と思ったのに…」'
+                            '難民審査待たされ野宿3カ月 行き場をなくした外国人が増えている：東京新聞 TOKYO Web",'
+                '"title_p_countries": ['
+                '"ロシア",'
+                'ウクライナ"'
+                '],'
+                '"result": ['
+                    '"ロシア",'
+                    '"ウクライナ",'
+                    '"日本"'
+                    ']'
+            '}'
             '<|end_of_text|>'
         ),
         default=False

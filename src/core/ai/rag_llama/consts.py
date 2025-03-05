@@ -21,3 +21,7 @@ HEADERS: Final[dict[str, str]] = {
         'Chrome/131.0.0.0 Safari/537.36'
     )
 }
+
+DATA_LINK: Final[str] = ('https://www.asahi.com/topics/AP-7274059d-8405-4d7f-8dbd-8203b01bbbc8/timeline-unit/'
+                         '735073dc-92bf-485a-909c-0d823315cb69/?iref=com_topics_7274059d-8405-4d7f-8dbd-8203b01bbbc8_'
+                         'timeline_readmore')
