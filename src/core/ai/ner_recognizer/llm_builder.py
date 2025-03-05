@@ -13,7 +13,6 @@ from transformers import (
 from langchain_core.prompts import PromptTemplate
 from langchain_community.llms import Ollama
 
-
 from core.ai.enums import AiModels
 from core.ai.models import JapaneseNamedEntitiesIdentificator, IndirectMentioning
 from train_test_set.corpus import DataSet
