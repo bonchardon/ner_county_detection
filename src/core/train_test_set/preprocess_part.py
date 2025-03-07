@@ -10,8 +10,8 @@ from stopwordsiso import stopwords
 
 from transformers import AutoTokenizer, PreTrainedTokenizerFast
 
-from train_test_set.corpus import DataSet
-from train_test_set.consts import JAPANESE_SEPARATOR, JAPANESE_PUNCTUATION, REGEX_NUMBERS
+from core.train_test_set.corpus import DataSet 
+from core.train_test_set.consts import JAPANESE_SEPARATOR, JAPANESE_PUNCTUATION, REGEX_NUMBERS
 
 
 class PreprocessingFormula:
