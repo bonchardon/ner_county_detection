@@ -2,9 +2,8 @@ from asyncio import run
 
 from loguru import logger
 
-from train_test_set.corpus import DataSet
+from core.train_test_set.corpus import DataSet
 
-from core.ai.rag_llama.rag_builder import BuildRAG
 from core.train_test_set.preprocess_part import PreprocessingFormula
 from core.ai.ner_recognizer.llm_builder import ModelBuilder
 
