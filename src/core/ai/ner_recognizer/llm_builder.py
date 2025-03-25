@@ -37,12 +37,10 @@ class ModelBuilder:
             torch_dtype=torch.float16,
             trust_remote_code=True, 
             device_map='auto',
-            token='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'   
         )
         tokenizer: bool | PreTrainedTokenizerFast = AutoTokenizer.from_pretrained(
             'elyza/ELYZA-japanese-Llama-2-7b-instruct', 
             use_fast=False,
-            token='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'            
         )
         generation_config = GenerationConfig.from_pretrained(
             pretrained_model_name='elyza/ELYZA-japanese-Llama-2-7b-instruct',
