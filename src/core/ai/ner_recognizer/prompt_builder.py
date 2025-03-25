@@ -10,8 +10,9 @@ from core.ai.models import JapaneseNamedEntitiesIdentificator, CheckRAG
 class PromptsBuilder:
 
     async def prompt_ner(self, input_text: str):
-        prompt_template_str = JapaneseNamedEntitiesIdentificator.model_fields['country_ner'].field_info.description
-        prompt_template = PromptTemplate.from_template(prompt_template_str)
+        prompt = JapaneseNamedEntitiesIdentificator().country_ner
+        prompt_template = PromptTemplate.from_template(prompt)
+
         formatted_input = prompt_template.format(input_text=input_text)
 
         logger.info(f'Formatted input for NER: {formatted_input}')

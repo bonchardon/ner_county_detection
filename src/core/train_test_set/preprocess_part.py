@@ -1,8 +1,5 @@
-# todo:
-#  1) delete stop words,
-#  2) delete punctuation,
-#  3) delete all odd data (consider how to do that since it's japanese)
 from re import sub
+from typing import Union
 
 from loguru import logger
 
@@ -16,7 +13,7 @@ from core.train_test_set.consts import JAPANESE_SEPARATOR, JAPANESE_PUNCTUATION,
 
 class PreprocessingFormula:
     @staticmethod
-    async def data_tokenization(sentences: list[str]) -> list[str] | None:
+    async def data_tokenization(sentences: list[str]) -> Union[list[str], None]:
         tokenizer: bool | PreTrainedTokenizerFast = AutoTokenizer.from_pretrained(JAPANESE_SEPARATOR)
         if not (tokenized_sentences := [
             tokenizer.decode(tokenizer(sent, return_tensors='pt')['input_ids'][0], skip_special_tokens=True)
@@ -27,7 +24,7 @@ class PreprocessingFormula:
         return tokenized_sentences
 
     @staticmethod
-    async def remove_stop_words(sentences: list[str]) -> list[list[str]] | None:
+    async def remove_stop_words(sentences: list[str]) -> Union[list[list[str]], None]:
         stop_words: set[str] = set(stopwords('ja'))
         if not (filtered_sentences := [
             [
@@ -44,7 +41,7 @@ class PreprocessingFormula:
         return filtered_sentences
 
     @classmethod
-    async def preprocessing_pipeline(cls, data_set: list[str]) -> list[DataSet] | None:
+    async def preprocessing_pipeline(cls, data_set: list[str]) -> Union[list[DataSet] , None]:
         tokenized_data: list[str] | None = await cls.data_tokenization(sentences=data_set)
         data_sans_stopwords = await cls.remove_stop_words(sentences=tokenized_data)
 

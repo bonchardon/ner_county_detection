@@ -1,4 +1,10 @@
+from os import environ
+from re import search, findall, DOTALL
+from typing import List, Union
+
 from loguru import logger
+
+from dotenv import load_dotenv
 
 import torch
 from transformers import (
@@ -7,40 +13,52 @@ from transformers import (
     PreTrainedTokenizerFast,
     AutoModelForCausalLM,
     GenerationConfig,
-    Pipeline
+    Pipeline,
 )
+
+from huggingface_hub import login
 
 from langchain_core.prompts import PromptTemplate
 
-from core.ai.enums import AiModels
+# from core.ai.ner_recognizer.enums import AiModels
 from core.ai.models import JapaneseNamedEntitiesIdentificator, IndirectMentioning
-from train_test_set import DataSet
+from core.train_test_set.corpus import DataSet
+
+
+login(token=environ.get('LLAMA_TOKEN'))
+load_dotenv()
 
 
 class ModelBuilder:
     @staticmethod
-    async def llm_builder() -> Pipeline | None:
+    async def llm_builder():
         model = AutoModelForCausalLM.from_pretrained(
-            AiModels.LLM_MODEL_3_1_SWALLOW,
+            'elyza/ELYZA-japanese-Llama-2-7b-instruct',
             torch_dtype=torch.float16,
-            trust_remote_code=True
+            trust_remote_code=True, 
+            device_map='auto',
+            token='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'   
         )
-        tokenizer: bool | PreTrainedTokenizerFast = AutoTokenizer.from_pretrained(AiModels.LLM_MODEL_3_1_SWALLOW)
+        tokenizer: bool | PreTrainedTokenizerFast = AutoTokenizer.from_pretrained(
+            'elyza/ELYZA-japanese-Llama-2-7b-instruct', 
+            use_fast=False,
+            token='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'            
+        )
         generation_config = GenerationConfig.from_pretrained(
-            pretrained_model_name=AiModels.LLM_MODEL_3_1_SWALLOW,
+            pretrained_model_name='elyza/ELYZA-japanese-Llama-2-7b-instruct',
             temperature=0.8,
             top_p=0.95,
             top_k=10,
             max_new_tokens=1024,
             tensor_parallel_size=1,
-            trust_remote_code=True
+            trust_remote_code=True,
         )
         if not (text_pipeline := pipeline(
-            task='ner',
+            task='text-generation',
             model=model,
             tokenizer=tokenizer,
-            return_full_text=True,
-            generation_config=generation_config
+            return_full_text=False,
+            generation_config=generation_config, 
 
         )):
             logger.warning('There is an issue when combining text pipeline.')
@@ -48,14 +66,35 @@ class ModelBuilder:
         return text_pipeline
 
     @staticmethod
-    async def prompt_template(input_text: list[DataSet], prompt: str) -> str | None:
-        if not (prompt_template := PromptTemplate.from_template(prompt)):
-            logger.error('There is an issue when trying to use prompt template.')
+    async def prompt_template(input_text: Union[list[DataSet], list[str], str], prompt: str) -> str:
+        if not isinstance(prompt, str):
+            logger.error('Prompt is not a string.')
             return
+        prompt_template = PromptTemplate.from_template(prompt)
+        if isinstance(input_text, list):
+            if all(hasattr(ds, 'sentence') for ds in input_text):
+                input_text = ' '.join(' '.join(ds.sentence) for ds in input_text)
+            else:
+                input_text = ' '.join(input_text)
+        elif isinstance(input_text, str):
+            pass
+        else:
+            logger.warning('Unsupported input_text format')
+            input_text = str(input_text)
+
         return prompt_template.format(input_text=input_text)
+    
+    @staticmethod
+    async def extract_ner(response: List) -> List:
+        if not (response := response[0]['generated_text']):
+            return
+        if not (match := search(r'\|begin_of_text\|\s*(.*?)\s*\|end_of_text\|', response, DOTALL)):
+            return
+        content = match.group(1)
+        return findall(r'[\w一-龥ぁ-んァ-ンー]+', content)
 
     @classmethod
-    async def prompt_ner(cls, input_text: list[DataSet]) -> list | str | None:
+    async def prompt_ner(cls, input_text: Union[list[DataSet]]):
         formatted_input: str = await cls.prompt_template(
             input_text=input_text,
             prompt=JapaneseNamedEntitiesIdentificator().country_ner
@@ -64,21 +103,21 @@ class ModelBuilder:
         if llm_pipeline is None:
             logger.error('NER pipeline could not be loaded.')
             return
-        result: list = llm_pipeline(formatted_input)
-        logger.info(f'NER Result: {result}')
-        if not result:
+        response: list = llm_pipeline(formatted_input)
+        logger.info(await cls.extract_ner(response))
+        if not response:
             logger.info('No countries identified.')
             return (
                 '<|begin_of_text|> '
                 'If there are no countries identified, recheck and analyze the text one more time. '
-                'In case no named entities are still identified, the "reply" section has to be None; like so: '
+                'In case no named entities are still identified, the "reply" section has to be None like so: '
                 '"result": [None]'
                 '<|end_of_text|>'
             )
-        return result
+        return await cls.extract_ner(response)
 
     @classmethod
-    async def check_for_indirect_mentions(cls, input_text: list[DataSet]):
+    async def check_for_indirect_mentions(cls, input_text: Union[list[DataSet]]):
         """ We are about to use RAG, so we can identify any indirect mentioning. """
         formatted_input: str = await cls.prompt_template(
             input_text=input_text,
