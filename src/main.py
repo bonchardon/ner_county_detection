@@ -3,11 +3,15 @@ from asyncio import run, gather
 
 from loguru import logger
 
-from core.train_test_set.corpus import DataSet
+from fastapi import FastAPI
+
+# from core.train_test_set.corpus import DataSet
 
 from core.ai.ner_recognizer.llm_builder import ModelBuilder
 from core.train_test_set.preprocess_part import PreprocessingFormula
 
+
+app: FastAPI = FastAPI()
 
 async def process_item(item):
     logger.info(f"Processing: {item['title_p']}")
@@ -24,6 +28,7 @@ async def main() -> None:
     with open('src/data/processed_data_ner_task.json', 'w', encoding='utf-8') as f:
         dump(processed, f, ensure_ascii=False, indent=2)
     logger.info('NER processing complete.')
+
 
 if __name__ == '__main__':
     run(main())
