@@ -1,0 +1,59 @@
+INFO:     Started server process [1765870]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    Traceback (most recent call last):
+  File "/usr/lib/python3.9/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/usr/lib/python3.9/asyncio/base_events.py", line 642, in run_until_complete
+    return future.result()
+  File "/home/hce/ner_county_detection/venv/lib/python3.9/site-packages/uvicorn/server.py", line 70, in serve
+    await self._serve(sockets)
+  File "/home/hce/ner_county_detection/venv/lib/python3.9/site-packages/uvicorn/server.py", line 85, in _serve
+    await self.startup(sockets=sockets)
+  File "/home/hce/ner_county_detection/venv/lib/python3.9/site-packages/uvicorn/server.py", line 163, in startup
+    server = await loop.create_server(
+  File "/usr/lib/python3.9/asyncio/base_events.py", line 1492, in create_server
+    sock.bind(sa)
+OverflowError: bind(): port must be 0-65535.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/hce/ner_county_detection/venv/lib/python3.9/site-packages/starlette/routing.py", line 699, in lifespan
+    await receive()
+  File "/home/hce/ner_county_detection/venv/lib/python3.9/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+    return await self.receive_queue.get()
+  File "/usr/lib/python3.9/asyncio/queues.py", line 166, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+Traceback (most recent call last):
+  File "/home/hce/ner_county_detection/venv/bin/uvicorn", line 8, in <module>
+    sys.exit(main())
+  File "/home/hce/ner_county_detection/venv/lib/python3.9/site-packages/click/core.py", line 1161, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/hce/ner_county_detection/venv/lib/python3.9/site-packages/click/core.py", line 1082, in main
+    rv = self.invoke(ctx)
+  File "/home/hce/ner_county_detection/venv/lib/python3.9/site-packages/click/core.py", line 1443, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/hce/ner_county_detection/venv/lib/python3.9/site-packages/click/core.py", line 788, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/hce/ner_county_detection/venv/lib/python3.9/site-packages/uvicorn/main.py", line 412, in main
+    run(
+  File "/home/hce/ner_county_detection/venv/lib/python3.9/site-packages/uvicorn/main.py", line 579, in run
+    server.run()
+  File "/home/hce/ner_county_detection/venv/lib/python3.9/site-packages/uvicorn/server.py", line 66, in run
+    return asyncio.run(self.serve(sockets=sockets))
+  File "/usr/lib/python3.9/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/usr/lib/python3.9/asyncio/base_events.py", line 642, in run_until_complete
+    return future.result()
+  File "/home/hce/ner_county_detection/venv/lib/python3.9/site-packages/uvicorn/server.py", line 70, in serve
+    await self._serve(sockets)
+  File "/home/hce/ner_county_detection/venv/lib/python3.9/site-packages/uvicorn/server.py", line 85, in _serve
+    await self.startup(sockets=sockets)
+  File "/home/hce/ner_county_detection/venv/lib/python3.9/site-packages/uvicorn/server.py", line 163, in startup
+    server = await loop.create_server(
+  File "/usr/lib/python3.9/asyncio/base_events.py", line 1492, in create_server
+    sock.bind(sa)
+OverflowError: bind(): port must be 0-65535.

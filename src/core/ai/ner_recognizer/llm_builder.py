@@ -9,7 +9,9 @@ from dotenv import load_dotenv
 import torch
 from transformers import (
     pipeline,
-    AutoTokenizer,
+    AutoTokenizer, 
+    AutoModelForTokenClassification, 
+    TokenClassificationPipeline,
     PreTrainedTokenizerFast,
     AutoModelForCausalLM,
     GenerationConfig,
@@ -24,9 +26,8 @@ from langchain_core.prompts import PromptTemplate
 from core.ai.models import JapaneseNamedEntitiesIdentificator, IndirectMentioning
 from core.train_test_set.corpus import DataSet
 
-
-login(token=environ.get('LLAMA_TOKEN'))
 load_dotenv()
+login(token=environ.get('LLAMA_TOKEN'))
 
 
 class ModelBuilder:
@@ -40,24 +41,24 @@ class ModelBuilder:
         )
         tokenizer: bool | PreTrainedTokenizerFast = AutoTokenizer.from_pretrained(
             'elyza/ELYZA-japanese-Llama-2-7b-instruct', 
-            use_fast=False,
+            use_fast=True,
         )
         generation_config = GenerationConfig.from_pretrained(
             pretrained_model_name='elyza/ELYZA-japanese-Llama-2-7b-instruct',
-            temperature=0.8,
-            top_p=0.95,
-            top_k=10,
-            max_new_tokens=1024,
-            tensor_parallel_size=1,
-            trust_remote_code=True,
+            temperature=0.2,
+            do_sample=True,
+            top_k=50,
+            top_p=0.9,
+            max_new_tokens=150,
+            repetition_penalty=1.2,
+            num_beams=5,
         )
         if not (text_pipeline := pipeline(
             task='text-generation',
             model=model,
             tokenizer=tokenizer,
             return_full_text=False,
-            generation_config=generation_config, 
-
+            generation_config=generation_config,
         )):
             logger.warning('There is an issue when combining text pipeline.')
             return
@@ -69,17 +70,6 @@ class ModelBuilder:
             logger.error('Prompt is not a string.')
             return
         prompt_template = PromptTemplate.from_template(prompt)
-        if isinstance(input_text, list):
-            if all(hasattr(ds, 'sentence') for ds in input_text):
-                input_text = ' '.join(' '.join(ds.sentence) for ds in input_text)
-            else:
-                input_text = ' '.join(input_text)
-        elif isinstance(input_text, str):
-            pass
-        else:
-            logger.warning('Unsupported input_text format')
-            input_text = str(input_text)
-
         return prompt_template.format(input_text=input_text)
     
     @staticmethod
@@ -97,42 +87,43 @@ class ModelBuilder:
             input_text=input_text,
             prompt=JapaneseNamedEntitiesIdentificator().country_ner
         )
+        logger.info(formatted_input)
         llm_pipeline: Pipeline | None = await cls.llm_builder()
         if llm_pipeline is None:
             logger.error('NER pipeline could not be loaded.')
             return
-        response: list = llm_pipeline(formatted_input)
-        logger.info(await cls.extract_ner(response))
-        if not response:
+        response_japanese: list = llm_pipeline(formatted_input)
+        logger.info(response_japanese)
+        if response_japanese[0].get('generated_text') == '':
             logger.info('No countries identified.')
-            return (
-                '<|begin_of_text|> '
-                'If there are no countries identified, recheck and analyze the text one more time. '
-                'In case no named entities are still identified, the "reply" section has to be None like so: '
-                '"result": [None]'
-                '<|end_of_text|>'
-            )
-        return await cls.extract_ner(response)
+            # todo: recheck and apply RAG
+            return ('"ner": None')
+        return response_japanese
 
-    @classmethod
-    async def check_for_indirect_mentions(cls, input_text: Union[list[DataSet]]):
-        """ We are about to use RAG, so we can identify any indirect mentioning. """
-        formatted_input: str = await cls.prompt_template(
-            input_text=input_text,
-            prompt=IndirectMentioning().augmented_generation_check
-        )
-        llm_pipeline: Pipeline | None = await cls.llm_builder()
-        if llm_pipeline is None:
-            logger.error('NER pipeline could not be loaded.')
-            return
-        result: str = llm_pipeline(formatted_input)
-        logger.info(f'NER Result: {result}')
-        if result is False:
-            logger.info('There is no indirect mentioning.')
-            return (
-                '<|begin_of_text|> Go ahead and try to analyze the given text 2 more times. '
-                'In case no indirect named entities are still identified, the "reply" section has to be None; like so: '
-                '"result": [None]'
-                '<|end_of_text|>'
-            )
-        return result
+
+
+
+
+
+    # @classmethod
+    # async def check_for_indirect_mentions(cls, input_text: Union[list[DataSet]]):
+    #     """ We are about to use RAG, so we can identify any indirect mentioning. """
+    #     formatted_input: str = await cls.prompt_template(
+    #         input_text=input_text,
+    #         prompt=IndirectMentioning().augmented_generation_check
+    #     )
+    #     llm_pipeline: Pipeline | None = await cls.llm_builder()
+    #     if llm_pipeline is None:
+    #         logger.error('NER pipeline could not be loaded.')
+    #         return
+    #     result: str = llm_pipeline(formatted_input)
+    #     logger.info(f'NER Result: {result}')
+    #     if result is False:
+    #         logger.info('There is no indirect mentioning.')
+    #         return (
+    #             '<|begin_of_text|> Go ahead and try to analyze the given text 2 more times. '
+    #             'In case no indirect named entities are still identified, the "reply" section has to be None; like so: '
+    #             '"result": [None]'
+    #             '<|end_of_text|>'
+    #         )
+    #     return result

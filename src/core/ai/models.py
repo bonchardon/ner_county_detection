@@ -17,22 +17,24 @@ class IndirectMentioning(AssistantResponse):
         ),
         default=False
     )
-
+ 
 
 class JapaneseNamedEntitiesIdentificator(AssistantResponse):
     country_ner: str = Field(
         default=(
-            '<|begin_of_text|> '
-            'You need to identify any country name in a text in Japanese language. '
-            'Mind that there can be contextual references of countries, as well. If so, apply RAG.'
-            'If there are multiple countries mentioned make sure, you identify ALL the countries.'
-            '### Example 1: '
-            'Input: amisweetheart 日本まで、日本での住所も決めずに来れる奴らが難民か？ウクライナ人はホームステイして良いですよとか、'
-            'たまたま家族がいたからとかで来た人多いと思うけど。 変なYouTubeに感化されて、好き勝手できそうで来てるんやないの？ '
-            'ただで電車に乗る方法とか、暴言吐いても射殺されないとか見てさ。'
-            'Reply: ["ウクライナ", "日本"]'
-            '<|end_of_text|>'
+            '[INST]'
+            '<<SYS>>'
+            'You are an assistant tasked with identifying all country names mentioned in a given Japanese text. '
+            'Your response should be a JSON object containing a list of all unique country names mentioned, without repetitions or additional information. '
+            'Ensure that only internationally recognized sovereign states are included. '
+            'If no countries are identified, return {{"ner": None}}.'
+            '<</SYS>>'
+
+            'Output the answer in JSON in the following format: {{"ner": ["country_a", "country_b", etc.]}}'
+            'Given text: {input_text}'
+            '[/INST]'
+
         ),
-        # description='This is the prompt template used for extracting country NERs from Japanese text.'
+        #description='This is the prompt template used for extracting country NERs from Japanese text.'
         description=False
     )
